@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Books table — HTML көрініс</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#0f172a;
+      --success:#10b981;
+      --danger:#ef4444;
+      --shadow: 0 6px 18px rgba(15,23,42,0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    body{background:var(--bg); margin:24px; color:var(--accent); }
+    .wrap{max-width:980px; margin:0 auto;}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .card{background:var(--card); padding:18px;border-radius:12px;box-shadow:var(--shadow); margin-bottom:18px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eef2f7;font-size:14px}
+    th{background:#fbfdff;color:var(--muted);font-weight:600;font-size:13px}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px}
+    .badge-yes{background:rgba(16,185,129,0.12);color:var(--success)}
+    .badge-no{background:rgba(239,68,68,0.08);color:var(--danger)}
+    form .row{display:flex;gap:8px;flex-wrap:wrap}
+    form input[type="text"], form input[type="number"]{
+      padding:8px 10px;border-radius:8px;border:1px solid #e6eef8;background:#fbfcfe;font-size:14px;min-width:140px;
+    }
+    form label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    .controls{display:flex;gap:8px;align-items:center}
+    button{background:#0b5fff;color:white;border:none;padding:9px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    button.secondary{background:#e6eef8;color:var(--accent)}
+    .small{font-size:13px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+    @media (max-width:880px){ .grid{grid-template-columns:1fr} }
+    .note{font-size:13px;color:var(--muted);margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>books (HTML көрініс)</h1>
+        <p class="lead">SQL кесте: <code>book_id BIGSERIAL PK, title VARCHAR(200), author VARCHAR(120), year_pub INT (&#62;1500), in_stock BOOLEAN DEFAULT TRUE</code></p>
+      </div>
+      <div class="small">Жергілікті демо — серверсіз</div>
+    </header>
+
+    <div class="grid">
+      <div class="card" id="tableCard">
+        <h3 style="margin:0 0 10px">Кітаптар</h3>
+        <table id="booksTable" aria-describedby="tableNote">
+          <thead>
+            <tr>
+              <th style="width:72px">ID</th>
+              <th>Title</th>
+              <th>Author</th>
+              <th style="width:110px">Year</th>
+              <th style="width:110px">In stock</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- rows inserted by JS -->
+          </tbody>
+        </table>
+        <p id="tableNote" class="note">Мысал жолдар — жарамды SQL шектеулерін ескеріп жасалған.</p>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="exportCsv">CSV-ке экспорттау</button>
+          <button class="secondary" id="resetSample">Мысалдарды қалпына келтіру</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 10px">Кітап қосу</h3>
+        <form id="addForm" onsubmit="return false;">
+          <div class="row">
+            <div style="flex:1;min-width:160px">
+              <label for="title">Title *</label>
+              <input id="title" type="text" maxlength="200" required placeholder="Кітап атауы">
+            </div>
+            <div style="flex:1;min-width:160px">
+              <label for="author">Author *</label>
+              <input id="author" type="text" maxlength="120" required placeholder="Автор">
+            </div>
+            <div style="min-width:120px">
+              <label for="year_pub">Year (&#62;1500) *</label>
+              <input id="year_pub" type="number" min="1501" step="1" required placeholder="2020">
+            </div>
+            <div style="min-width:120px">
+              <label for="in_stock">In stock</label>
+              <select id="in_stock">
+                <option value="true" selected>Yes</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+            <div class="controls">
+              <button id="addBtn">Кітап қосу</button>
+              <button id="addSample" class="secondary" type="button">Тез мысал қосу</button>
+            </div>
+            <div class="small" id="formMsg" style="margin-left:6px"></div>
+          </div>
+        </form>
+
+        <hr style="margin:14px 0">
+        <h4 style="margin:0 0 8px">Кесте құрылымы</h4>
+        <ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.6">
+          <li><strong>book_id</strong> — BIGSERIAL PRIMARY KEY (жергілікті демо үшін автосаналады)</li>
+          <li><strong>title</strong> — VARCHAR(200) NOT NULL</li>
+          <li><strong>author</strong> — VARCHAR(120) NOT NULL</li>
+          <li><strong>year_pub</strong> — INT CHECK (year_pub &gt; 1500)</li>
+          <li><strong>in_stock</strong> — BOOLEAN DEFAULT TRUE</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Демонстрациялық бастапқы мәліметтер (тығыздалған мысалдар)
+    const sampleData = [
+      { title: "Қазақ әдебиеті тарихы", author: "А.Байтұрсынов", year_pub: 1930, in_stock: true },
+      { title: "Modern SQL Cookbook", author: "J. Doe", year_pub: 2018, in_stock: true },
+      { title: "Algorithms Unlocked", author: "T. Cormen", year_pub: 2013, in_stock: false }
+    ];
+
+    let books = [];
+    let nextId = 1;
+
+    function resetToSample() {
+      books = sampleData.map((b, i) => ({ book_id: i+1, ...b }));
+      nextId = books.length + 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector("#booksTable tbody");
+      tbody.innerHTML = "";
+      if (books.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = '<td colspan="5" style="text-align:center;padding:16px;color:var(--muted)">Кестеде кітап жоқ</td>';
+        tbody.appendChild(tr);
+        return;
+      }
+      for (const r of books) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.book_id}</td>
+          <td>${escapeHtml(r.title)}</td>
+          <td>${escapeHtml(r.author)}</td>
+          <td>${r.year_pub}</td>
+          <td><span class="badge ${r.in_stock ? 'badge-yes' : 'badge-no'}">${r.in_stock ? 'Yes' : 'No'}</span></td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    // Form actions
+    document.getElementById("addBtn").addEventListener("click", () => {
+      const title = document.getElementById("title").value.trim();
+      const author = document.getElementById("author").value.trim();
+      const year = Number(document.getElementById("year_pub").value);
+      const in_stock = document.getElementById("in_stock").value === 'true';
+
+      const msgEl = document.getElementById("formMsg");
+      msgEl.textContent = "";
+
+      // Local validation similar to SQL constraints
+      if (!title || !author) { msgEl.textContent = "Title және Author толтыру керек."; return; }
+      if (!Number.isInteger(year) || year <= 1500) { msgEl.textContent = "Year must be an integer > 1500."; return; }
+
+      const newBook = { book_id: nextId++, title, author, year_pub: year, in_stock };
+      books.push(newBook);
+      renderTable();
+
+      // clear form fields (keep in_stock default true)
+      document.getElementById("title").value = "";
+      document.getElementById("author").value = "";
+      document.getElementById("year_pub").value = "";
+      document.getElementById("in_stock").value = "true";
+      msgEl.textContent = "Қосылды ✔";
+      setTimeout(()=> msgEl.textContent = "", 1800);
+    });
+
+    document.getElementById("addSample").addEventListener("click", () => {
+      const sample = { book_id: nextId++, title: "Жаңа мысал кітабы", author: "Автор", year_pub: 2021, in_stock: true };
+      books.push(sample);
+      renderTable();
+    });
+
+    document.getElementById("exportCsv").addEventListener("click", () => {
+      if (books.length === 0) return alert("Экспорттауға дерек жоқ");
+      const rows = [
+        ["book_id","title","author","year_pub","in_stock"],
+        ...books.map(r => [r.book_id, r.title, r.author, r.year_pub, r.in_stock])
+      ];
+      const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(",")).join("\\n");
+      const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "books_export.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("resetSample").addEventListener("click", () => {
+      if (!confirm("Мысал деректерді қайта жүктейсің бе? Қосылған жергілікті өзгерістер жойылмайды, алайда бастапқы мысалдар қайта пайда болады.")) return;
+      resetToSample();
+    });
+
+    // Инициализация
+    resetToSample();
+  </script>
+</body>
+</html>
